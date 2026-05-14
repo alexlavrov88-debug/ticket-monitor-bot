@@ -158,7 +158,7 @@ async def periodic_check():
         if prev_available is None:
             prev_available = available
             print(f"[{datetime.now()}] Начальное количество билетов: {available}")
-            await send_telegram_message(f"🎟️ Начальный мониторинг билетов.\nДоступно: {available}")
+            await send_telegram_message(f"🎟️ Привет.Начальный мониторинг билетов.\nДоступно: {available}")
         else:
             if available > prev_available:
                 diff = available - prev_available
