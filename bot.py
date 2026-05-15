@@ -20,8 +20,8 @@ HELP_TEXT = (
     "/help - Показать это сообщение\n"
     "/subscribe - Подписаться на уведомления о новых билетах\n"
     "/unsubscribe - Отписаться от уведомлений\n"
-    "/set_threshold <число> - Установить свой порог разницы (по умолчанию 100)\n"
-    "/show_threshold - Показать текущий порог\n"
+    "/set\\_threshold <число>  - Установить свой порог разницы (по умолчанию 100) \n"
+    "/show\\_threshold - Показать текущий порог\n"
     "/id - Показывает id пользовтеля\n\n"
 )
 
@@ -83,6 +83,8 @@ command_delay = 0
 command_check = 0
 command_help = 0
 command_stats = 0
+command_set_threshold = 0
+command_show_threshold = 0
 last_log_time = datetime.now()
 
 
@@ -283,32 +285,50 @@ def save_subscribers():
 
 @dp.message(Command("set_threshold"))
 async def cmd_set_threshold(message: Message):
+    global command_set_threshold
+    command_set_threshold += 1
+
+    await message.answer(
+        "🔢 Отправьте команду в формате:\n"
+        "`/set_threshold 50`\n\n"
+        "Где `50` — нужное вам количество новых билетов",
+        parse_mode="MarkdownV2"
+    )
+
     args = message.text.split()
     if len(args) != 2:
         await message.answer("❌ Использование: `/set_threshold <число>`\nПример: `/set_threshold 50`",
                              parse_mode="Markdown")
+        print(f"[{datetime.now()}] Пользователь {message.chat.id} вызвал /set_threshold без аргумента")
         return
     try:
         new_threshold = int(args[1])
         if new_threshold < 1:
             await message.answer("⚠️ Порог должен быть больше 0.")
+            print(f"[{datetime.now()}] Пользователь {message.chat.id} попытался установить порог <= 0")
             return
         chat_id = message.chat.id
         set_user_threshold(chat_id, new_threshold)
         await message.answer(
             f"✅ Ваш порог уведомлений установлен на **{new_threshold}**.\nУведомления будут приходить, когда новых билетов станет больше чем на {new_threshold}.",
             parse_mode="Markdown")
+        print(f"[{datetime.now()}] Пользователь {message.chat.id} установил порог: {new_threshold}")
     except ValueError:
         await message.answer("❌ Нужно ввести целое число. Пример: `/set_threshold 50`", parse_mode="Markdown")
+        print(f"[{datetime.now()}] Пользователь {message.chat.id} ввёл нечисловое значение в /set_threshold")
 
 
 @dp.message(Command("show_threshold"))
 async def cmd_show_threshold(message: Message):
+    global command_show_threshold
+    command_show_threshold += 1
+
     chat_id = message.chat.id
     threshold = get_user_threshold(chat_id)
     await message.answer(
         f"📊 Ваш текущий порог уведомлений: **{threshold}**\nУведомления приходят, когда новых билетов появляется больше чем на {threshold}.",
         parse_mode="Markdown")
+    print(f"[{datetime.now()}] Пользователь {message.chat.id} проверил свой порог: {threshold}")
 
 
 @dp.message(Command("id"))
@@ -318,6 +338,7 @@ async def cmd_myid(message: Message):
         f"`{message.chat.id}`",
         parse_mode="Markdown"
     )
+    print(f"[{datetime.now()}] Пользователь {message.chat.id} вызвал /id")
 
 
 @dp.message(Command("subscribe"))
@@ -343,9 +364,9 @@ async def unsubscribe(message: Message):
 @dp.message(Command("stats"))
 async def cmd_stats(message: Message):
     global request_count, success_count, error_429_count, error_other_count
-    global command_start, command_status, command_delay, command_check, command_help, command_stats
+    global command_start, command_status, command_delay, command_check, command_help, command_stats, command_set_threshold, command_show_threshold
     command_stats += 1
-    total_commands = command_start + command_status + command_delay + command_check + command_help + command_stats
+    total_commands = command_start + command_status + command_delay + command_check + command_help + command_stats + command_set_threshold + command_show_threshold
     success_rate = (
         f"{success_count / request_count * 100:.1f}%" if request_count > 0 else "Нет данных"
     )
@@ -364,6 +385,8 @@ async def cmd_stats(message: Message):
         f"• /check: `{command_check}`\n"
         f"• /help: `{command_help}`\n"
         f"• /stats: `{command_stats}`\n"
+        f"• /set_threshold: `{command_set_threshold}`\n"
+        f"• /show_threshold: `{command_show_threshold}`\n"
         f"• Всего команд: `{total_commands}`"
     )
     await message.answer(stats_text, parse_mode="Markdown")
