@@ -18,7 +18,8 @@ HELP_TEXT = (
     "/delay - Показать текущую паузу между автоматическими проверками\n"
     "/help - Показать это сообщение\n"
     "/subscribe - Подписаться на уведомления о новых билетах\n"
-    "/unsubscribe - Отписаться от уведомлений\n\n"
+    "/unsubscribe - Отписаться от уведомлений\n"
+    "/id - Показывает id пользовтеля\n\n"
 )
 
 # Загружаем переменные из .env
@@ -208,6 +209,13 @@ def save_subscribers():
 
 # ---------- Telegram команды ----------
 
+@dp.message(Command("id"))
+async def cmd_myid(message: Message):
+    await message.answer(
+        f"🆔 Ваш Telegram ID:\n"
+        f"`{message.chat.id}`",
+        parse_mode="Markdown"
+    )
 
 @dp.message(Command("subscribe"))
 async def subscribe(message: Message):
