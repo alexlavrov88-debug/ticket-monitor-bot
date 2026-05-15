@@ -46,16 +46,16 @@ MAX_DELAY = int(os.getenv("MAX_DELAY", 300))  # максимум при 429 (5 �
 API_URL = f"https://widget.afisha.yandex.ru/api/tickets/v1/sessions/{SESSION_TOKEN}/hallplan/async?clientKey={CLIENT_KEY}"
 
 # Создаём бота и диспетчер
-# bot = Bot(token=BOT_TOKEN)
+bot = Bot(token=BOT_TOKEN)
 
 
 # --- НАСТРОЙКА ПРОКСИ ДЛЯ БОТА ---
-if PROXY_URL:
-    print(f"Использую прокси: {PROXY_URL}")
-    session = AiohttpSession(proxy=PROXY_URL)
-    bot = Bot(token=BOT_TOKEN, session=session)
-else:
-    bot = Bot(token=BOT_TOKEN)
+# if PROXY_URL:
+#     print(f"Использую прокси: {PROXY_URL}")
+#     session = AiohttpSession(proxy=PROXY_URL)
+#     bot = Bot(token=BOT_TOKEN, session=session)
+# else:
+#     bot = Bot(token=BOT_TOKEN)
 
 dp = Dispatcher()
 
